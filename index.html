@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Example Table using D3 - Nathan Dobie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+    <meta charset="utf-8" />
+    <style type="text/css">
+        @import url('//fonts.googleapis.com/css?family=Lato:400,400italic,700,700italic');
+
+        body {
+            font-family: 'Lato', Arial, Helvetica, sans-serif;
+            font-size: 16px;
+        }
+
+        .source, .prepaired, .update {
+            font-size: 0.625em;
+            color: grey;
+            line-height: 80%;
+        }
+
+        th {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        table {
+            text-align: right;
+            padding-right: 2px;
+            margin-right: 3px;
+            width: 100%;
+        }
+
+        td:nth-child(6) {
+            margin-right: 8px;
+        }
+
+        td:nth-child(1) {
+            width: 200px;
+        }
+        /*tr:hover {
+            background-color: lightgrey;
+        }*/
+    </style>
+</head>
+<body>
+    <div id="table_wrap" style="width=100%; margin-right:5px;">
+        <table style="width:100%,min-width:400px" margin-right="3px" id="med_inc"></table>
+
+    </div>
+    <script type="text/javascript">
+        d3.csv("states.csv", function (data) {
+            function tabulate(data, columns) {
+                var table = d3.select("#med_inc")
+                    , columnNames = ["", "", "", "", "", ""]
+                    , thead = table.append("thead")
+                    , tbody = table.append("tbody");
+
+                // append the header row
+                thead.append("tr")
+                    .selectAll("th")
+                    .data(columnNames)
+                    .enter()
+                    .append("th")
+                    .text(function (columnNames) { return columnNames; });
+
+                // create a row for each object in the data
+                var rows = tbody.selectAll("tr")
+                    .data(data)
+                    .enter()
+                    .append("tr");
+
+                // create a cell in each row for each column
+                var cells = rows.selectAll("td")
+                    .data(function (row) {
+                        return columns.map(function (column) {
+                            return { column: column, value: row[column] };
+                        });
+                    })
+                    .enter()
+                    .append("td")
+                    .attr("style", "font-family: 'Lato'")
+                        .html(function (d) {
+                            if ($.isNumeric(d.value)) {//jQuery function checks if number is numeric, if it is formats it with thousands seporator
+                                return formatMoney(d.value)
+                            } else {
+                                return d.value;
+                            };
+                        });
+
+                return table;
+            };
+
+            tabulate(data, ["c1", "c2", "c3", "c4"])//The names of the columns in the CSV file
+
+            function formatMoney(n) {
+                return n.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+            };
+        });
+    </script>
+</body>
+</html>
